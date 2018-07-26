@@ -68,6 +68,7 @@ var App = {
         App.socket.on("messageReceived", function(data) {
           console.log("mess arrivato", data.message);
           insertOtherMessage(data.name, data.message);
+          // uploadData(data);
         });
       });
     });

@@ -244,7 +244,7 @@ jQuery(document).ready(function($) {
                         <img class="align-self-center rounded-circle mr-3" style="width:85px; height:85px;" alt="" src="images/admin.jpg">\
                     </a>\
                     <div class="media-body">\
-                        <h2 class="text-light display-6">' +
+                        <h2 class="text-light display-6" id="vincitore">' +
         snap.vincitore +
         '</h2>\
                     </div>\
@@ -261,23 +261,23 @@ jQuery(document).ready(function($) {
                 </li>\
                 <li class="list-group-item">\
                     <a href="#">\
-                        <i class="fa fa-tasks"></i> ' +
+                        <i class="fa fa-tasks"></i> Fine: ' +
         snap.fine +
         '\
                         <span class="badge badge-danger pull-right">15</span>\
                     </a>\
                 </li>\
                 <li class="list-group-item">\
-                    <a href="#">\
-                        <i class="fa fa-bell-o"></i> ' +
+                <i class="fa fa-bell-o"></i>\
+                    <a href="#" id="valore-attuale">\
+                        Valore:  ' +
         snap.valore_attuale +
         '\
-                        <span class="badge badge-success pull-right">11</span>\
                     </a>\
                 </li>\
                 <li class="list-group-item">\
                     <a href="#">\
-                        <i class="fa fa-comments-o"></i> ' +
+                        <i class="fa fa-comments-o"></i> Rilancio: ' +
         snap.rilancio_minimo +
         '\
                         <span class="badge badge-warning pull-right r-activity">03</span>\
@@ -291,6 +291,7 @@ jQuery(document).ready(function($) {
     },
 
     addAsteTable: function(data) {
+      $("#table-aste-body").empty();
       data.forEach(function(snap) {
         var element = $(
           '<tr>\

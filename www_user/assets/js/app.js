@@ -65,9 +65,21 @@ var App = {
           );
         }
 
+        function uploadData(data) {
+          $("#vincitore").html(data.name);
+          $("#valore-attuale").text("valore: " + data.valoreAttuale);
+        }
+
         App.socket.on("messageReceived", function(data) {
-          console.log("mess arrivato", data.message);
-          insertOtherMessage(data.name, data.message);
+          if (data.name != App.user) {
+            console.log("mess arrivato", data.message);
+            insertOtherMessage(data.name, data.message);
+          }
+          uploadData(data);
+        });
+
+        App.socket.on("auctionClosed", function(data) {
+          insertOtherMessage("Amministratore", data.message);
         });
       });
     });

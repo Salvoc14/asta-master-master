@@ -133,12 +133,12 @@ app.use(bodyparser.json());
 var checkUser = function(req, res, next) {
   console.log("entrato");
   if (req.session.user) {
-    if (req.session.user.view == 0) {
-      next();
+    if (req.session.user) {
+      res.send("Sei loggato");
     }
   } else next();
 };
-app.use(express.static("www"));
+app.use("/", express.static("www"));
 // app.get("/", function(req, res) {
 //   if (req.session.user) {
 //     res.send("Già Loggato");
@@ -300,12 +300,12 @@ app.get("/session", getSession);
 app.get("/aste-attive", getAsteAttive);
 app.get("/aste-table", getAsteTable);
 
-app.get("/admin", function(req, res) {
-  if (req.session.user.level != "A") {
-    console.log("Utente non auterizzato");
-    res.send("No autorized");
-  } else res.sendfile(__dirname + "/www_admin");
-});
+// app.get("/admin", function(req, res) {
+//   if (req.session.user.level != "A") {
+//     console.log("Utente non auterizzato");
+//     res.send("No autorized");
+//   } else res.sendfile(__dirname + "/www_admin");
+// });
 
 var destroySession = function(req, res) {
   req.session.destroy(function(err) {
@@ -324,7 +324,13 @@ websocketServer.on(
   })
 );
 
-var _room;
+function findAsta(title) {
+  var currentAsta;
+  aste.forEach(function(snap) {
+    if (snap.title == title) currentAsta = snap;
+  });
+  return currentAsta;
+}
 websocketServer.on("authenticated", function(socketC) {
   console.log("Un Utente si è collegato");
 
@@ -358,7 +364,33 @@ websocketServer.on("authenticated", function(socketC) {
 
   socketC.on("sendMessage", function(data) {
     console.log("messaggio arrivato", data, socketC.request.session.user.room);
-    socketC.in(socketC.request.session.user.room).emit("messageReceived", data);
+    var currentAsta = findAsta(socketC.request.session.user.room);
+    console.log(currentAsta);
+    if (currentAsta.stato == "attiva") {
+      var newValue;
+
+      newValue = currentAsta.valore_attuale + parseInt(data.message);
+      currentAsta.valore_attuale = newValue;
+
+      newData = {
+        name: data.name,
+        message: data.message,
+        time: data.time,
+        valoreAttuale: newValue
+      };
+      websocketServer
+        .in(socketC.request.session.user.room)
+        .emit("messageReceived", newData);
+    }
+  });
+
+  socketC.on("closeAuction", function() {
+    var currentAsta = findAsta(socketC.request.session.user.room);
+    currentAsta.stato = "conclusa";
+
+    websocketServer
+      .in(socketC.request.session.user.room)
+      .emit("auctionClosed", { message: "Asta conclusa dall'amministratore" });
   });
 });
 
